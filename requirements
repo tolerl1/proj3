@@ -25,5 +25,5 @@ local monitoring for each VM:
 	Disk capacity
 	Memory
 
-
+provide notifications through email, syslog, web (only 2)
 
