@@ -1,0 +1,13 @@
+check host patelk7-client1 with address 10.2.242.102
+ if failed ping then alert
+         start program = "/usr/bin/systemctl start monit"
+
+    stop program = "/usr/bin/systemctl stop monit"
+
+
+#    if failed port 22 protocol ssh with timeout 15 seconds then alert
+#    if failed port syslog ......
+#    if failed port 389 636 protocol ldap ....
+#    if failed port/service protocol nfs
+#    if failed port 80 protocol http
+
