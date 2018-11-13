@@ -16,66 +16,21 @@
 ##
 ## Start Monit in the background (run as a daemon):
 #
-set daemon  60              # WE CHANGED
+set daemon  60              
 # 
 #
 #
 ## Set syslog logging. If you want to log to a standalone log file instead,
 ## specify the full path to the log file
 #
-set logfile syslog facility log_daemon   # WE CHANGED
-#
-#
-## Set the location of the Monit lock file which stores the process id of the
-## running Monit instance. By default this file is stored in $HOME/.monit.pid
-#
-# set pidfile /var/run/monit.pid
-#
-## Set the location of the Monit id file which stores the unique id for the
-## Monit instance. The id is generated and stored on first Monit start. By
-## default the file is placed in $HOME/.monit.id.
-#
-# set idfile /var/.monit.id
-#
-## Set the location of the Monit state file which saves monitoring states
-## on each cycle. By default the file is placed in $HOME/.monit.state. If
-## the state file is stored on a persistent filesystem, Monit will recover
-## the monitoring state across reboots. If it is on temporary filesystem, the
-## state will be lost on reboot which may be convenient in some situations.
-#
-# set statefile /var/.monit.state
-#
-#
-
-## Set limits for various tests. The following example shows the default values:
-##
-# set limits {
-#     programOutput:     512 B,      # check program's output truncate limit
-#     sendExpectBuffer:  256 B,      # limit for send/expect protocol test
-#     fileContentBuffer: 512 B,      # limit for file content test
-#     httpContentBuffer: 1 MB,       # limit for HTTP content test
-#     networkTimeout:    5 seconds   # timeout for network I/O
-#     programTimeout:    300 seconds # timeout for check program
-#     stopTimeout:       30 seconds  # timeout for service stop
-#     startTimeout:      30 seconds  # timeout for service start
-#     restartTimeout:    30 seconds  # timeout for service restart
-# }
-
-## Set global SSL options (just most common options showed, see manual for
-## full list).
-#
-# set ssl {
-#     verify     : enable, # verify SSL certificates (disabled by default but STRONGLY RECOMMENDED)
-#     selfsigned : allow   # allow self signed SSL certificates (reject by default)
-# }
+set logfile syslog facility log_daemon   
 #
 #
 ## Set the list of mail servers for alert delivery. Multiple servers may be
 ## specified using a comma separator. If the first mail server fails, Monit
 # will use the second mail server in the list and so on. By default Monit uses
 # port 25 - it is possible to override this with the PORT option.
-#WE CHANGED
-set mailserver 127.0.0.1             # primary mailserver
+set mailserver 127.0.0.1             	     # primary mailserver
 #                backup.bar.baz port 10025,  # backup mailserver on port 10025
 #                localhost                   # fallback relay
 #
@@ -92,26 +47,8 @@ set mailserver 127.0.0.1             # primary mailserver
 #     slots 100           # optionally limit the queue size
 #
 #
-## Send status and events to M/Monit (for more informations about M/Monit
-## see https://mmonit.com/). By default Monit registers credentials with
-## M/Monit so M/Monit can smoothly communicate back to Monit and you don't
-## have to register Monit credentials manually in M/Monit. It is possible to
-## disable credential registration using the commented out option below.
-## Though, if safety is a concern we recommend instead using https when
-## communicating with M/Monit and send credentials encrypted. The password
-## should be URL encoded if it contains URL-significant characters like
-## ":", "?", "@". Default timeout is 5 seconds, you can customize it by
-## adding the timeout option.
-#
-# set mmonit http://monit:monit@192.168.1.10:8080/collector
-#     # with timeout 30 seconds              # Default timeout is 5 seconds
-#     # and register without credentials     # Don't register credentials
-#
-#
 ## Monit by default uses the following format for alerts if the mail-format
-## statement is missing::
 ## --8<--
-##WE CHANGED
 set mail-format {
   from:    Monit <monit@$HOST>
   subject: monit alert --  $EVENT $SERVICE
@@ -121,16 +58,10 @@ set mail-format {
                 Host:        $HOST
                 Description: $DESCRIPTION
 
-                Your faithful employee,
-		Monit
+            Your faithful employee,
+	    Monit
 }
 ## --8<--
-##
-## You can override this message format or parts of it, such as subject
-## or sender using the MAIL-FORMAT statement. Macros such as $DATE, etc.
-## are expanded at runtime. For example, to override the sender, use:
-#
-# set mail-format { from: monit@foo.bar }
 #
 #
 ## You can set alert recipients whom will receive alerts if/when a
@@ -153,10 +84,11 @@ set mail-format {
 ## commands to a running Monit daemon. See the Monit Wiki if you want to
 ## enable SSL for the HTTP interface.
 #
-set httpd port 2812 use address localhost ## WE CHANGED
+set httpd port 2812 use address localhost 
     allow localhost        # allow localhost to connect to the server and
     allow admin:monit      # require user 'admin' with password 'monit'
-
+#
+#
 ###############################################################################
 ## Services
 ###############################################################################
@@ -164,32 +96,15 @@ set httpd port 2812 use address localhost ## WE CHANGED
 ## Check general system resources such as load average, cpu and memory
 ## usage. Each test specifies a resource, conditions and the action to be
 ## performed should a test fail.
-#
 
-check process syslogd with pidfile /var/run/syslogd.pid
-
-    start program = "/usr/bin/systemctl start rsyslog"
-
-    stop program = "/usr/bin/systemctl stop rsyslog"
-
-check process sendmail with pidfile /var/run/sendmail.pid
-   group mail
-   start program = "/etc/init.d/sendmail start"
-   stop  program = "/etc/init.d/sendmail stop"
-   if failed port 25 protocol smtp then restart
-  if 5 restarts within 5 cycles then timeout
-
-check filesystem rootfs with path /
-              if space usage > 80% then alert
-
-
-
-#  check system $HOST
-#    if loadavg (1min) > 4 then alert
-#    if loadavg (5min) > 2 then alert
-#    if cpu usage > 95% for 10 cycles then alert
-#    if memory usage > 75% then alert
-#    if swap usage > 25% then alert
+check system $HOST 
+  alert cit470.fa2018.team.two@gmail.com
+  if loadavg (1min) > 4 then alert
+  if loadavg (5min) > 2 then alert
+  if memory usage > 80% then alert
+  if cpu usage (user) > 75% for 10 cycles then alert
+  if cpu usage (system) > 40% for 10 cycles then alert
+  if cpu usage (wait) > 20% for 10 cycles then alert
 #
 #
 ## Check if a file exists, checksum, permissions, uid and gid. In addition
@@ -218,23 +133,31 @@ check filesystem rootfs with path /
 ## statement. This service depends on another service (apache_bin) which
 ## is defined above.
 #
-#  check process apache with pidfile /usr/local/apache/logs/httpd.pid
-#    start program = "/etc/init.d/httpd start" with timeout 60 seconds
-#    stop program  = "/etc/init.d/httpd stop"
-#    if cpu > 60% for 2 cycles then alert
-#    if cpu > 80% for 5 cycles then restart
-#    if totalmem > 200.0 MB for 5 cycles then restart
-#    if children > 250 then restart
-#    if loadavg(5min) greater than 10 for 8 cycles then stop
-#    if disk read > 500 kb/s for 10 cycles then alert
-#    if disk write > 500 kb/s for 10 cycles then alert
-#    if failed host www.tildeslash.com port 80 protocol http and request "/somefile.html" then restart
-#    if failed port 443 protocol https with timeout 15 seconds then restart
-#    if 3 restarts within 5 cycles then unmonitor
-#    depends on apache_bin
-#    group server
+check process apache with pidfile /usr/local/apache/logs/httpd.pid
+    start program = "/etc/init.d/httpd start" with timeout 60 seconds
+    stop program  = "/etc/init.d/httpd stop"
+    if cpu > 60% for 2 cycles then alert
+    if cpu > 80% for 5 cycles then restart
+    if totalmem > 200.0 MB for 5 cycles then restart
+    if failed host www.nku.com port 80 protocol http and request "/about.html" then restart
+    if 3 restarts within 5 cycles then unmonitor
+    group server
 #
+##check if ldap process is running
+check process slapd with pidfile /var/run/openldap/slapd.pid
+   start program = "/etc/init.d/slapd start" with timeout 30 seconds
+   stop program = "/etc/init.d/slapd stop"
+   if 5 restarts within 5 cycles then alert
+   if cpu > 60% for 2 cycles then alert
 #
+##check if sendmail process is running
+check process sendmail with pidfile /var/run/sendmail.pid
+   group mail
+   start program = "/etc/init.d/sendmail start"
+   stop  program = "/etc/init.d/sendmail stop"
+   if failed port 25 protocol smtp then restart
+   if 5 restarts within 5 cycles then timeout
+
 ## Check filesystem permissions, uid, gid, space usage, inode usage and disk I/O.
 ## Other services, such as databases, may depend on this resource and an automatically
 ## graceful stop may be cascaded to them before the filesystem will become full and data
@@ -256,18 +179,6 @@ check filesystem rootfs with path /
 #    if write rate > 500 operations/s for 5 cycles then alert
 #    if service time > 10 milliseconds for 3 times within 5 cycles then alert
 #    group server
-#
-#
-## Check a file's timestamp. In this example, we test if a file is older
-## than 15 minutes and assume something is wrong if its not updated. Also,
-## if the file size exceed a given limit, execute a script
-#
-#  check file database with path /data/mydatabase.db
-#    if failed permission 700 then alert
-#    if failed uid "data" then alert
-#    if failed gid "data" then alert
-#    if timestamp > 15 minutes then alert
-#    if size > 100 MB then exec "/my/cleanup/script" as uid dba and gid dba
 #
 #
 ## Check directory permission, uid and gid.  An event is triggered if the
