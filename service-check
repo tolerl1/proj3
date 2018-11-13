@@ -11,3 +11,10 @@ check host patelk7-client1 with address 10.2.242.102
 #    if failed port/service protocol nfs
 #    if failed port 80 protocol http
 
+ check process slapd with pidfile /var/run/openldap/slapd.pid
+ group ldap
+   start program = "/etc/init.d/lapd start" with timeout 30 seconds
+   stop program = "/etc/init.d/lapd stop"
+   if failed host 127.0.0.1 port 389 type tcp protocol ldap3 then restart
+   if 5 restarts within 5 cycles then timeout
+
