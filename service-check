@@ -26,13 +26,13 @@ check host patelk7-client1 with address 10.2.242.102
 ## performed should a test fail.
 
  check system *what goes here*
-   alert your.admin@example.com
+   alert cit470.fa2018.team.two@gmail.com
    if loadavg (1min) > 4 then alert
    if loadavg (5min) > 2 then alert
    if memory usage > 80% then alert
-   if cpu usage (user) > 75% then alert
-   if cpu usage (system) > 40% then alert
-   if cpu usage (wait) > 20% then alert
+   if cpu usage (user) > 75% for 10 cycles then alert
+   if cpu usage (system) > 40% for 10 cycles then alert
+   if cpu usage (wait) > 20% for 10 cycles then alert
 
 #    
 
