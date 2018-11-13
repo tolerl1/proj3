@@ -184,7 +184,7 @@ check filesystem "root" with path /dev/sda1
 ## Check a remote host availability by issuing a ping test and check the
 ## content of a response from a web server. Up to three pings are sent and
 ## connection to a port and an application level network check is performed.
-###############add############
+###############add hostnames############
 #
 ###############################################################################
 ## Includes
