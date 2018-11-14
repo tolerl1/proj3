@@ -98,7 +98,6 @@ set httpd port 2812 use address localhost
 ## Check general system resources such as load average, cpu and memory
 ## usage. Each test specifies a resource, conditions and the action to be
 ## performed should a test fail.
-
 check system $HOST 
   alert cit470.fa2018.team.two@gmail.com
   if loadavg (1min) > 4 then alert
@@ -138,7 +137,7 @@ check system $HOST
 ## is defined above.
 #
 check process apache with pidfile /usr/local/apache/logs/httpd.pid
-    start program = "/etc/init.d/httpd start" with timeout 60 seconds
+    start program = "/etc/init.d/httpd start"
     stop program  = "/etc/init.d/httpd stop"
     if cpu > 60% for 2 cycles then alert
     if cpu > 80% for 5 cycles then restart
@@ -149,10 +148,9 @@ check process apache with pidfile /usr/local/apache/logs/httpd.pid
 #
 ## check if ldap process is running
 check process slapd with pidfile /var/run/openldap/slapd.pid
-   start program = "/etc/init.d/slapd start" with timeout 30 seconds
+   start program = "/etc/init.d/slapd start"
    stop program = "/etc/init.d/slapd stop"
    if 5 restarts within 5 cycles then alert
-   if cpu > 60% for 2 cycles then alert
 #
 ## Monit sendmail process and restart if it goes down
 check process sendmail with pidfile /var/run/sendmail.pid
@@ -162,7 +160,7 @@ check process sendmail with pidfile /var/run/sendmail.pid
    if failed port 25 protocol smtp then restart
    if 5 restarts within 5 cycles then timeout
 #
-## Monit rsyslog process and restart if it goes down
+## Monit rsyslog process and timesout if it restarts 5 times within 5 cycles
 check process syslogd with pidfile /var/run/syslogd.pid
   start program = "/usr/bin/systemctl start rsyslog"
   stop program = "/usr/bin/systemctl stop rsyslog"
@@ -173,18 +171,25 @@ check filesystem "root" with path /dev/sda1
   if space usage > 80% for 5 times within 15 cycles then alert
   group sever
 #
-## Check filesystem permissions, uid, gid, space usage, inode usage and disk I/O.
-## Other services, such as databases, may depend on this resource and an automatically
-## graceful stop may be cascaded to them before the filesystem will become full and data
-## lost.
-check filesystem "root" with path /dev/sda1
-  if space usage > 80% for 5 times within 15 cycles then alert
-  group sever
+## check status of SSH and restart port if it fails, timeout after 5 cycles of restart
+check process sshd with pidfile /var/run/sshd.pid
+  start program = "/usr/bin/systemctl start sshd"
+  stop program = "/usr/bin/systemctl stop sshd"
+  if failed port 22 protocol ssh then restart
+  if 5 restarts within 5 cycles then timeout
+#
+## check status of NFS /home server and timeout if 5 restarts in 5 cycles
+check process nfs-server with pidfile /var/run/rpc.statd.pid
+  start program = "/usr/bin/systemctl start nfs"
+  stop program = "/usr/bin/systemctl stop nfs"
+  if 5 restarts within 5 cycles then timeout
 #
 ## Check a remote host availability by issuing a ping test and check the
 ## content of a response from a web server. Up to three pings are sent and
 ## connection to a port and an application level network check is performed.
-###############add hostnames############
+check host tcli1 with address SERVER ADDRESS
+  if failed ping with timeout 30 seconds then alert
+  if failed port 22 protocol ssh with timeout 20 seconds then alert
 #
 ###############################################################################
 ## Includes
