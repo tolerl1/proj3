@@ -99,7 +99,7 @@ set httpd port 2812 use address localhost
 ## usage. Each test specifies a resource, conditions and the action to be
 ## performed should a test fail.
 check system $HOST 
-  alert cit470.fa2018.team.two@gmail.com
+  alert emailhere
   if loadavg (1min) > 4 then alert
   if loadavg (5min) > 2 then alert
   if memory usage > 80% then alert
@@ -183,13 +183,6 @@ check process nfs-server with pidfile /var/run/rpc.statd.pid
   start program = "/usr/bin/systemctl start nfs"
   stop program = "/usr/bin/systemctl stop nfs"
   if 5 restarts within 5 cycles then timeout
-#
-## Check a remote host availability by issuing a ping test and check the
-## content of a response from a web server. Up to three pings are sent and
-## connection to a port and an application level network check is performed.
-check host tcli1 with address SERVER ADDRESS
-  if failed ping with timeout 30 seconds then alert
-  if failed port 22 protocol ssh with timeout 20 seconds then alert
 #
 ###############################################################################
 ## Includes
