@@ -168,7 +168,7 @@ check process syslogd with pidfile /var/run/syslogd.pid
 #
 ## check, alert, and reload if /root is > 80% full
 check filesystem "root" with path /dev/sda1
-  if space usage > 80% for 5 times within 15 cycles then alert
+  if space usage > 70% for 5 times within 15 cycles then alert
   group sever
 #
 ## check status of SSH and restart port if it fails, timeout after 5 cycles of restart

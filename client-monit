@@ -1,16 +1,20 @@
 #!/bin/bash
 
+
+usage="$(basename "$0") [-h] [-s ServerIP] [-e AdminEmail] -- configures monit monitoring tool
+
+
+
+
 rm /etc/monitrc
 wget http://10.2.6.19/~apache-user/monitrc -P /etc/
 cp /etc/monitrc /etc/monitrc.bak
-#wget studenthome.nku.edu/~tolerl1/monitrc-client
-email=$2
-serverIP=$1
 
 monit_cfg="/etc/monitrc"
+echo $2
+echo $4
+#sed -i "s/root@localhost/root@$0/g" $monit_cfg
 
-sed -i "s/root@localhost/root@$1/g" $monit_cfg
-
-sed -i "s/alert emailhere/alert $2/g" $monit_cfg
+#sed -i "s/alert emailhere/alert $1/g" $monit_cfg
 
 systemctl restart monit
