@@ -1,4 +1,6 @@
 #!/bin/bash
+#Project 3
+#Team 2; Logan Toler, Kenil Patel, Zach Brewers
 
 #Kill sendmail process
 echo  "Stopping sendmail process"
