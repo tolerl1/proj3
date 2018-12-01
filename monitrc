@@ -134,18 +134,7 @@ check system $HOST
 ## it by default. In case the service is restarted very often and the
 ## problem remains, it is possible to disable monitoring using the TIMEOUT
 ## statement. This service depends on another service (apache_bin) which
-## is defined above.
-#
-check process apache with pidfile /usr/local/apache/logs/httpd.pid
-    start program = "/usr/bin/systemctl start httpd"
-    stop program  = "/usr/bin/systemctl stop httpd"
-    if cpu > 60% for 2 cycles then alert
-    if cpu > 80% for 5 cycles then restart
-    if totalmem > 200.0 MB for 5 cycles then restart
-    if failed host localhost port 80 
-        protocol HTTP request "/~apache-user/" then restart
-    if 3 restarts within 5 cycles then unmonitor
-    group server
+## is defined above.r
 #
 ## check if ldap process is running
 check process LDAP-Client with pidfile /var/run/nslcd/nslcd.pid
