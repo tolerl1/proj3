@@ -3,9 +3,7 @@
 #CIT470-001
 #Darci Guriel
 #Team 2, Logan Toler, Keni Patel, Zach Brewers
-#11/29/18
-
-if [ "$0" == "$0] ; then echo "run: `basename $0` -h for help" ; exit 0 ; fi
+#11/27/2018
 
 #Help menu that displays the script deployment syntax
 if [ "$1" == "-h" ] ; then echo "Usage: `basename $0` [The script must be ran as followed: ./client-monit 'ServerIP' 'AdminEmail']" ; exit 0 ; fi
