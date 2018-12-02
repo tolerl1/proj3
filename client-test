@@ -1,30 +1,51 @@
 #!/bin/bash
+#Project 3 - CIT470-001
+#Logan Toler
+#tests client monit config
 
-#Kill sendmail process
-echo  "Stopping sendmail process"
-systemctl stop sendmail
- 
+echo "Installing required packages..." &&
+yum -y install stress &&
+echo "Packages installed." &&
+
 #Kill SSH
-echo "Stopping SSH process"
+echo "Testing SSH..."
 systemctl stop sshd
- 
-# Kill Apache 
-echo "Stoping Apache service"
-systemctl stop httpd
- 
-#creating temporary file in tmp for memhog
-wget 10.2.6.19/~apache-user/memhog.c -P /tmp/
- 
-#Compile memhog.c using gcc
-#cd /tmp && gcc memhog.c -o memhog
+sleep 120
+monit summary | grep ssh
 
-#for i in 0 1 2 3 4 5 6 7 8 9 
-#do
-#  dd if=/dev/zero of=flood$i.bin bs=14GB count=1000000 &
-#done
-#sleep 10
-#rm flood.bin
+#Kill syslog
+echo "Testing syslog..."
+systemctl stop rsyslog
+sleep 120
+monit summary | grep rsyslog
+echo "Syslog testing complete!"
 
-dd if=/dev/zero of=flood.bin count=4M
-sleep 10
-rm flood.bin
+#Kill NFS-Client
+echo "Testing NFS client..."
+systemctl stop nfs
+sleep 120
+monit summary | grep nfs
+echo "NFS-Client testing complete!"
+
+#Kill LDAP-Client
+echo "Testing LDAP client..."
+systemctl stop nslcd
+sleep 60
+monit summary | grep nslcd
+echo "LDAP-Client testing complete!"
+ 
+#Overload CPU and MEM with stress tool
+echo "Testing CPU and memory usage..."
+stress --vm-bytes 256MB --cpu 100 --timeout 60s >& 1 >> /var/log/client-test.log
+monit summary | grep localhost
+echo "CPU and MEM testing complete!"
+
+#Test hard drive alarm
+echo "Testing disk usage.."
+dd if=/dev/zero of=/dev/diskhog bs=1M count=100000 >& 1 >> /var/log/client-test.log
+sleep 60
+monit summary | grep Home
+monit summary | grep Root
+monit summary | grep Var
+rm /dev/diskhog -f >& 1 >> /var/log/client-test.log
+echo "Disk usage testing complete!"

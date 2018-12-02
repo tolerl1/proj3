@@ -179,8 +179,8 @@ check process SSH with pidfile /var/run/sshd.pid
 #
 ## check status of NFS /home server and timeout if 5 restarts in 5 cycles
 check process NFS-Client with pidfile /var/run/rpc.statd.pid
-  start program = "/usr/bin/systemctl start nfs"
-  stop program = "/usr/bin/systemctl stop nfs"
+  start program = "/usr/bin/systemctl start rpcbind"
+  stop program = "/usr/bin/systemctl stop rpcbind"
   if 5 restarts within 5 cycles then timeout
 #
 ###############################################################################
