@@ -10,75 +10,41 @@ echo "Packages installed." &&
 #Kill SSH
 echo "Testing SSH..."
 systemctl stop sshd
-<<<<<<< HEAD
 sleep 120
 monit summary | grep ssh
-=======
-sleep 60
-monit summary | grep SSH
->>>>>>> fa2dae382670f21a2c088a4689cafc3caf928ba8
 
 #Kill syslog
 echo "Testing syslog..."
 systemctl stop rsyslog
-<<<<<<< HEAD
 sleep 120
 monit summary | grep rsyslog
-=======
-sleep 60
-monit summary | grep syslog
->>>>>>> fa2dae382670f21a2c088a4689cafc3caf928ba8
-echo "Syslog testing complete!"
 
 #Kill NFS-Client
 echo "Testing NFS client..."
 systemctl stop nfs
-<<<<<<< HEAD
 sleep 120
 monit summary | grep nfs
-echo "NFS-Client testing complete!"
-
-#Kill LDAP-Client
-echo "Testing LDAP client..."
-systemctl stop nslcd
-sleep 60
-monit summary | grep nslcd
-=======
-sleep 60
-monit summary | grep NFS-Client
 echo "NFS-Client testing complete!"
 
 #Kill LAP-Client
 echo "Testing LDAP client..."
 systemctl stop nslcd
-sleep 60
-monit summary | grep LDAP-Client
->>>>>>> fa2dae382670f21a2c088a4689cafc3caf928ba8
+sleep 120
+monit summary | grep nslcd
 echo "LDAP-Client testing complete!"
  
 #Overload CPU and MEM with stress tool
 echo "Testing CPU and memory usage..."
-<<<<<<< HEAD
 stress --vm-bytes 256MB --cpu 100 --timeout 60s >& 1 >> /var/log/client-test.log
 monit summary | grep localhost
-=======
-stress --vm-bytes default --cpu 100 --timeout 60
-monit summary | grep $HOST
->>>>>>> fa2dae382670f21a2c088a4689cafc3caf928ba8
 echo "CPU and MEM testing complete!"
 
 #Test hard drive alarm
 echo "Testing disk usage.."
-<<<<<<< HEAD
 dd if=/dev/zero of=/dev/diskhog bs=1M count=100000 >& 1 >> /var/log/client-test.log
 sleep 60
 monit summary | grep Home
 monit summary | grep Root
 monit summary | grep Var
-=======
-dd if=/dev/zero of=/dev/diskhog bs=1M count=1000 >& 1 >> /var/log/client-test.log
-sleep 60
-monit summary | grep Home ; monit summary | grep Root ; monit summary | grep Var
->>>>>>> fa2dae382670f21a2c088a4689cafc3caf928ba8
 rm /dev/diskhog -f >& 1 >> /var/log/client-test.log
 echo "Disk usage testing complete!"
