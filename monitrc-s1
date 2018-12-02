@@ -86,7 +86,8 @@ set alert root@localhost                       # receive all alerts
 ## commands to a running Monit daemon. See the Monit Wiki if you want to
 ## enable SSL for the HTTP interface.
 #
-set httpd port 2812 use address localhost 
+set httpd port 2812
+    allow 0.0.0.0/0.0.0.0
     allow localhost        # allow localhost to connect to the server and
     allow admin:monit      # require user 'admin' with password 'monit'
 #
@@ -135,16 +136,13 @@ check system $HOST
 ## statement. This service depends on another service (apache_bin) which
 ## is defined above.
 #
-check process apache with pidfile /usr/local/apache/logs/httpd.pid
+check process apache with pidfile /var/run/httpd/httpd.pid
     start program = "/usr/bin/systemctl start httpd"
     stop program  = "/usr/bin/systemctl stop httpd"
     if cpu > 60% for 2 cycles then alert
     if cpu > 80% for 5 cycles then restart
     if totalmem > 200.0 MB for 5 cycles then restart
-    if failed host localhost port 80
-        protocol HTTP request "/~apache-user/" then restart
     if 3 restarts within 5 cycles then unmonitor
-    group server
 #
 ## check if ldap process is running
 check process LDAP with pidfile /var/run/openldap/slapd.pid
