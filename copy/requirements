@@ -1,0 +1,29 @@
+*be sure to use apache server to host files
+
+
+must use monit and include web-based functionality
+
+server /etc/monitrc file
+ssh
+syslog
+LDAP
+NFS
+Apache
+
+
+client /etc/monitrc file - send logs/syslog messages to server for archiving
+ssh
+syslog
+LDAP client
+NFS client
+
+script to config monit clients
+script to test monit solution
+
+local monitoring for each VM:
+	CPU usage
+	Disk capacity
+	Memory
+
+provide notifications through email, syslog, web (only 2)
+

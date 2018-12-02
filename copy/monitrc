@@ -1,0 +1,194 @@
+###############################################################################
+## Monit control file
+###############################################################################
+##
+## Comments begin with a '#' and extend through the end of the line. Keywords
+## are case insensitive. All path's MUST BE FULLY QUALIFIED, starting with '/'.
+##
+## Below you will find examples of some frequently used statements. For
+## information about the control file and a complete list of statements and
+## options, please have a look in the Monit manual.
+##
+##
+###############################################################################
+## Global section
+###############################################################################
+##
+## Start Monit in the background (run as a daemon):
+#
+set daemon  60              
+# 
+#
+#
+## Set syslog logging. If you want to log to a standalone log file instead,
+## specify the full path to the log file
+#
+set logfile syslog facility log_daemon   
+#
+#
+## Set the list of mail servers for alert delivery. Multiple servers may be
+## specified using a comma separator. If the first mail server fails, Monit
+# will use the second mail server in the list and so on. By default Monit uses
+# port 25 - it is possible to override this with the PORT option.
+set mailserver 127.0.0.1             	     # primary mailserver
+#                backup.bar.baz port 10025,  # backup mailserver on port 10025
+#                localhost                   # fallback relay
+#
+#
+## By default Monit will drop alert events if no mail servers are available.
+## If you want to keep the alerts for later delivery retry, you can use the
+## EVENTQUEUE statement. The base directory where undelivered alerts will be
+## stored is specified by the BASEDIR option. You can limit the queue size
+## by using the SLOTS option (if omitted, the queue is limited by space
+## available in the back end filesystem).
+#
+# set eventqueue
+#     basedir /var/monit  # set the base directory where events will be stored
+#     slots 100           # optionally limit the queue size
+#
+#
+## Monit by default uses the following format for alerts if the mail-format
+## statement is missing::
+## --8<--
+## set mail-format {
+##   from:    Monit <monit@$HOST>
+##   subject: monit alert --  $EVENT $SERVICE
+##   message: $EVENT Service $SERVICE
+##                 Date:        $DATE
+##                 Action:      $ACTION
+##                 Host:        $HOST
+##                 Description: $DESCRIPTION
+##
+##            Your faithful employee,
+##            Monit
+## }
+## --8<--
+##
+#
+#
+## You can set alert recipients whom will receive alerts if/when a
+## service defined in this file has errors. Alerts may be restricted on
+## events by using a filter as in the second example below.
+#
+set alert root@localhost                       # receive all alerts
+#
+## Do not alert when Monit starts, stops or performs a user initiated action.
+## This filter is recommended to avoid getting alerts for trivial cases.
+#
+# set alert your-name@your.domain not on { instance, action }
+#
+#
+## Monit has an embedded HTTP interface which can be used to view status of
+## services monitored and manage services from a web interface. The HTTP
+## interface is also required if you want to issue Monit commands from the
+## command line, such as 'monit status' or 'monit restart service' The reason
+## for this is that the Monit client uses the HTTP interface to send these
+## commands to a running Monit daemon. See the Monit Wiki if you want to
+## enable SSL for the HTTP interface.
+#
+set httpd port 2812
+    allow 0.0.0.0/0.0.0.0 
+    allow localhost        # allow localhost to connect to the server and
+    allow admin:monit      # require user 'admin' with password 'monit'
+#
+#
+###############################################################################
+## Services
+###############################################################################
+##
+## Check general system resources such as load average, cpu and memory
+## usage. Each test specifies a resource, conditions and the action to be
+## performed should a test fail.
+check system $HOST 
+  alert emailhere
+  if loadavg (1min) > 4 then alert
+  if loadavg (5min) > 2 then alert
+  if memory usage > 80% then alert
+  if swap usage > 25% then alert
+  if cpu usage > 95% for 10 cycles then alert
+  if cpu usage (user) > 75% then alert
+  if cpu usage (system) > 40% then alert
+  if cpu usage (wait) > 20% then alert
+#
+#
+## Check if a file exists, checksum, permissions, uid and gid. In addition
+## to alert recipients in the global section, customized alert can be sent to
+## additional recipients by specifying a local alert handler. The service may
+## be grouped using the GROUP option. More than one group can be specified by
+## repeating the 'group name' statement.
+#
+#  check file apache_bin with path /usr/local/apache/bin/httpd
+#    if failed checksum and
+#       expect the sum 8f7f419955cefa0b33a2ba316cba3659 then unmonitor
+#    if failed permission 755 then unmonitor
+#    if failed uid "root" then unmonitor
+#    if failed gid "root" then unmonitor
+#    alert security@foo.bar on {
+#           checksum, permission, uid, gid, unmonitor
+#        } with the mail-format { subject: Alarm! }
+#    group server
+#
+#
+## Check that a process is running, in this case Apache, and that it respond
+## to HTTP and HTTPS requests. Check its resource usage such as cpu and memory,
+## and number of children. If the process is not running, Monit will restart
+## it by default. In case the service is restarted very often and the
+## problem remains, it is possible to disable monitoring using the TIMEOUT
+## statement. This service depends on another service (apache_bin) which
+## is defined above.r
+#
+## check if ldap process is running
+check process LDAP-Client with pidfile /var/run/nslcd/nslcd.pid
+   start program = "/usr/bin/systemctl start nslcd"
+   stop program = "/usr/bin/systemctl stop nslcd"
+   if 5 restarts within 5 cycles then alert
+#
+## Monit sendmail process and restart if it goes down
+check process sendmail with pidfile /var/run/sendmail.pid
+   group mail
+   start program = "/usr/bin/systemctl start sendmail"
+   stop program = "/usr/bin/systemctl stop sendmail"
+   if failed port 25 protocol smtp then restart
+   if 5 restarts within 5 cycles then timeout
+#
+## Monit rsyslog process and timesout if it restarts 5 times within 5 cycles
+check process syslog with pidfile /var/run/syslogd.pid
+  start program = "/usr/bin/systemctl start rsyslog"
+  stop program = "/usr/bin/systemctl stop rsyslog"
+  if 5 restarts within 5 cycles then timeout
+#
+## check, alert, and reload if /root is > 80% full
+check filesystem "Home" with path /home
+  if space usage > 70% for 5 times within 15 cycles then alert
+  group server
+#
+check filesystem "Root" with path /
+  if space usage > 70% for 5 times within 15 cycles then alert
+  group server
+#
+check filesystem "Var" with path /var
+  if space usage > 70% for 5 times within 15 cycles then alert
+  group server
+#
+## check status of SSH and restart port if it fails, timeout after 5 cycles of restart
+check process SSH with pidfile /var/run/sshd.pid
+  start program = "/usr/bin/systemctl start sshd"
+  stop program = "/usr/bin/systemctl stop sshd"
+  if failed port 22 protocol ssh then restart
+  if 5 restarts within 5 cycles then timeout
+#
+## check status of NFS /home server and timeout if 5 restarts in 5 cycles
+check process NFS-Client with pidfile /var/run/rpc.statd.pid
+  start program = "/usr/bin/systemctl start rpcbind"
+  stop program = "/usr/bin/systemctl stop rpcbind"
+  if 5 restarts within 5 cycles then timeout
+#
+###############################################################################
+## Includes
+###############################################################################
+##
+## It is possible to include additional configuration parts from other files or
+## directories.
+#
+include /etc/monit.d/*
+#
