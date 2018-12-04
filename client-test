@@ -1,6 +1,6 @@
 #!/bin/bash
 #Project 3 - CIT470-001
-#Logan Toler
+#Keni & Logan
 #tests client monit config
 
 echo "Installing required packages..." &&
