@@ -35,16 +35,16 @@ echo "LDAP-Server testing complete!"
 
 #Overload CPU and MEM with stress tool
 echo "Testing CPU and memory usage..."
-stress --vm-bytes 256MB --cpu 100 --timeout 60s >& 1 >> /var/log/client-test.log
+stress --vm-bytes 256MB --cpu 100 --timeout 60s >& 1 >> /var/log/server-test.log
 monit summary | grep localhost
 echo "CPU and MEM testing complete!"
 
 #Test hard drive alarm
 echo "Testing disk usage.."
-dd if=/dev/zero of=/dev/diskhog bs=1M count=100000 >& 1 >> /var/log/client-test.log
+dd if=/dev/zero of=/dev/diskhog bs=1M count=100000 >& 1 >> /var/log/server-test.log
 sleep 60
 monit summary | grep Home
 monit summary | grep Root
 monit summary | grep Var
-rm /dev/diskhog -f >& 1 >> /var/log/client-test.log
+rm /dev/diskhog -f >& 1 >> /var/log/server-test.log
 echo "Disk usage testing complete!"
